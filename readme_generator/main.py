@@ -23,9 +23,16 @@ def scan_directory(path):
 def analyze_with_ollama(files):
     client = Client(host=OLLAMA_HOST)
     
+    print(f"📁 Gefundene Code-Dateien: {len(files)}")
+    for file in files:
+        print(f"   - {file}")
+    print()
+    
     # Phase 1: Analysiere jede Datei einzeln (mit Stückelung bei großen Dateien)
     file_summaries = []
-    for file_path in files:
+    for i, file_path in enumerate(files, 1):
+        print(f"🔍 Analysiere Datei {i}/{len(files)}: {os.path.basename(file_path)}")
+        
         with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
             content = f.read()
             
@@ -38,11 +45,19 @@ def analyze_with_ollama(files):
                 chunks.append(chunk)
                 start += max_bytes
             
+            if len(chunks) > 1:
+                print(f"   📄 Datei hat {len(chunks)} Teile (je {max_bytes} Bytes)")
+            
             # Analysiere jeden Chunk der Datei
             chunk_summaries = []
-            for i, chunk in enumerate(chunks):
+            for j, chunk in enumerate(chunks, 1):
+                if len(chunks) > 1:
+                    print(f"      🧩 Analysiere Teil {j}/{len(chunks)} mit Ollama...")
+                else:
+                    print(f"      🤖 Analysiere mit Ollama...")
+                    
                 prompt = (
-                    f"Analysiere sachlich Teil ({i+1}/{len(chunks)}) der Datei {file_path}. "
+                    f"Analysiere sachlich Teil ({j}/{len(chunks)}) der Datei {file_path}. "
                     "Antworte nur mit Fakten: Was macht dieser Code? Welche Hauptfunktionen gibt es? "
                     "Keine Bewertungen oder ausschmückende Beschreibungen. Nur technische Fakten. "
                     "Code:"
@@ -56,6 +71,7 @@ def analyze_with_ollama(files):
             file_summaries.append(file_summary)
     
     # Phase 2: Erstelle finale README aus allen Dateizusammenfassungen
+    print(f"\n📝 Erstelle finale README aus {len(file_summaries)} Dateianalysen...")
     all_summaries = "\n".join(file_summaries)
     
     final_prompt = (
@@ -71,26 +87,30 @@ def analyze_with_ollama(files):
         "Dateibeschreibungen:\n\n" + all_summaries
     )
     
+    print("🤖 Generiere finale README mit Ollama...")
     final_response = client.generate(model=OLLAMA_MODEL, prompt=final_prompt)
     return final_response['response']
 
 def main():
     if len(sys.argv) != 2:
-        print("Usage: python main.py <project_directory>")
+        print("❌ Usage: python main.py <project_directory>")
         sys.exit(1)
     project_dir = sys.argv[1]
     if not os.path.isdir(project_dir):
-        print("Das angegebene Verzeichnis existiert nicht.")
+        print("❌ Das angegebene Verzeichnis existiert nicht.")
         sys.exit(1)
+        
+    print(f"🚀 Starte README-Generierung für: {project_dir}")
     code_files = scan_directory(project_dir)
     if not code_files:
-        print("Keine relevanten Code-Dateien gefunden.")
+        print("❌ Keine relevanten Code-Dateien gefunden.")
         sys.exit(1)
+        
     analysis = analyze_with_ollama(code_files)
     readme_path = os.path.join(project_dir, "README.md")
     with open(readme_path, "w", encoding="utf-8") as f:
         f.write("# Projektanalyse\n\n" + analysis)
-    print(f"README.md wurde erstellt: {readme_path}")
+    print(f"\n✅ README.md wurde erstellt: {readme_path}")
 
 if __name__ == "__main__":
     main()
