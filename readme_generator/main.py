@@ -5,6 +5,7 @@ from ollama import Client
 # Configuration
 OLLAMA_HOST = "http://localhost:11434"
 OLLAMA_MODEL = "gemma3"
+CHUNK_SIZE = 4000
 
 def is_code_file(filename):
     code_extensions = {'.py', '.js', '.ts', '.java', '.cpp', '.c', '.cs', '.go', '.rb', '.php', '.rs', '.swift', '.kt', '.m', '.scala', '.pl', '.sh', '.tex'}
@@ -36,9 +37,9 @@ def analyze_with_ollama(files):
         with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
             content = f.read()
             
-            # Teile große Dateien in 3000-Byte-Chunks
+            # Teile große Dateien in Chunks
             chunks = []
-            max_bytes = 3000
+            max_bytes = CHUNK_SIZE
             start = 0
             while start < len(content):
                 chunk = content[start:start+max_bytes]
