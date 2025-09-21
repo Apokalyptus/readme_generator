@@ -1,0 +1,74 @@
+# Patterns to ignore when scanning for code files.
+# Supports wildcards like * and ?.
+
+# General
+node_modules
+.venv
+venv
+.env
+env
+__pycache__
+.git
+.github
+.vscode
+.idea
+build
+dist
+bin
+lib
+obj
+logs
+*.log
+*.tmp
+*.bak
+*.swp
+
+# Python
+*.pyc
+.pytest_cache
+htmlcov
+.tox
+*.egg-info
+site
+
+# Java/Maven/Gradle
+target
+.gradle
+build/
+
+# .NET
+bin/
+obj/
+packages/
+
+# JavaScript/Node
+coverage
+.nyc_output
+
+# Ruby
+vendor/bundle
+.bundle
+
+# PHP (Composer)
+vendor
+
+# Go
+vendor/
+
+# Rust
+target/
+
+# macOS/Windows
+.DS_Store
+Thumbs.db
+
+# JavaScript-related directories
+js/
+**/js/**
+html/js/s
+tinymce/
+ckeditor/
+ckfinder/
+jquery/
+*xajax*
+cocos2d/
